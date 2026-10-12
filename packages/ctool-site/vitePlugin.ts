@@ -78,9 +78,15 @@ export default (): Plugin => {
             // 处理核心文件
             const dist = join(config.root, config.build.outDir);
 
+            const analyticsId = process.env.GOOGLE_ANALYTICS_ID?.trim();
+            const analytics = analyticsId
+                ? readFileSync(join(__dirname, 'analytics.html'))
+                    .toString()
+                    .replaceAll('<GOOGLE_ANALYTICS_ID>', analyticsId)
+                : "";
             const head = readFileSync(join(__dirname, 'head.html'))
                 .toString()
-                .replaceAll('<GOOGLE_ANALYTICS_ID>', process.env.GOOGLE_ANALYTICS_ID || "ctool");
+                .replace('<!-- GOOGLE_ANALYTICS -->', analytics);
 
             ['index.html', 'tool.html'].map(file => join(dist, file)).forEach(file => {
                 writeFileSync(file, readFileSync(file).toString().replace('</head>', head))

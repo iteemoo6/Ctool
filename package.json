@@ -8,13 +8,14 @@
     "author": "baiy",
     "license": "MIT",
     "scripts": {
-        "initialize": "pnpm --filter ctool-config run build && pnpm --filter ctool-adapter-base run build && pnpm -r run adapter-build",
+        "initialize": "pnpm --filter ctool-config run build && pnpm --filter ctool-adapter-base run build && pnpm -r --workspace-concurrency=1 run adapter-build",
         "check": "pnpm run initialize && pnpm --filter ctool-core run check",
         "dev": "pnpm run initialize && pnpm --filter ctool-core run dev",
         "build": "pnpm run initialize && pnpm --filter ctool-core run build",
         "release": "node release.cjs && pnpm run build && pnpm -r run platform-release",
         "only-release": "node release.cjs && pnpm -r run platform-release",
-        "vercel-build": "pnpm run build && pnpm --filter ctool-site run build",
+        "web-build": "pnpm run build && pnpm --filter ctool-site run build",
+        "vercel-build": "pnpm run web-build",
         "clear": "node clear.cjs"
     },
     "devDependencies": {
