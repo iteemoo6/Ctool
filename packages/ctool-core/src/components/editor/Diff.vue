@@ -88,6 +88,7 @@ const editorView = shallowRef<monacoEditor.editor.IDiffEditor | null>(null);
 
 const lineWrapping = ref(!props.disableLineWrapping);
 const lineNumbers = ref(!props.disableLineNumbers);
+let disposed = false;
 
 const changes = ref<number>(0);
 const currentChange = ref<number>(1);
@@ -119,6 +120,9 @@ const create = async (element: HTMLElement) => {
     monacoInit({
         "vs/nls": { availableLanguages: { "*": $t("main_locale") === "zh_CN" ? "zh-cn" : "en" } },
     }).then(monaco => {
+        if (disposed) {
+            return;
+        }
         const originalModel = monaco.editor.createModel(original.value);
         const modifiedModel = monaco.editor.createModel(modified.value);
         
@@ -191,7 +195,10 @@ onMounted(async () => {
     await create(<HTMLElement>container.value);
 });
 
-onUnmounted(() => editorView.value?.dispose());
+onUnmounted(() => {
+    disposed = true;
+    editorView.value?.dispose();
+});
 
 const updateEditor = (original = "", modified = "") => {
     if (!editorView.value) {

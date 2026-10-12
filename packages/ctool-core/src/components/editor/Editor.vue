@@ -83,6 +83,7 @@ const container = ref<HTMLElement | null>(null);
 const editorView = shallowRef<monacoEditor.editor.IStandaloneCodeEditor | null>(null);
 const lineWrapping = ref(!props.disableLineWrapping);
 const lineNumbers = ref(!props.disableLineNumbers);
+let disposed = false;
 
 const getLanguage = (selectLang: string) => {
     let name: string = selectLang;
@@ -117,6 +118,9 @@ const create = async (element: HTMLElement) => {
     monacoInit({
         "vs/nls": { availableLanguages: { "*": $t("main_locale") === "zh_CN" ? "zh-cn" : "en" } },
     }).then(monaco => {
+        if (disposed) {
+            return;
+        }
         const editor = monaco.editor.create(element, {
             value: unref(modelValue.value),
             minimap: {
@@ -162,7 +166,10 @@ onMounted(async () => {
     await create(<HTMLElement>container.value);
 });
 
-onUnmounted(() => editorView.value?.dispose());
+onUnmounted(() => {
+    disposed = true;
+    editorView.value?.dispose();
+});
 
 const updateEditor = (text = "") => {
     if (!editorView.value) {

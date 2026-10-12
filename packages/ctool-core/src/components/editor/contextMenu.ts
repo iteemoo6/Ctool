@@ -109,9 +109,20 @@ class contextMenu {
 
     private handles: { [key in contextMenuType]?: menuHandle } = {};
 
+    private removeDefaultMenuTimer: ReturnType<typeof setTimeout> | null = null;
+
+    private editorDisposed = false;
+
     constructor(editor: monaco.editor.IStandaloneCodeEditor) {
         this.editor = editor;
         this.initMenu();
+        this.editor.onDidDispose(() => {
+            this.editorDisposed = true;
+            if (this.removeDefaultMenuTimer) {
+                clearTimeout(this.removeDefaultMenuTimer);
+                this.removeDefaultMenuTimer = null;
+            }
+        });
         this.editor.onDidChangeModelLanguage(e => {
             this.toggle("ctool_beautify", formatter.isEnable(e.newLanguage, "beautify"));
             this.toggle("ctool_compress", formatter.isEnable(e.newLanguage, "compress"));
@@ -121,7 +132,14 @@ class contextMenu {
     }
 
     private removeDefaultMenu() {
-        setTimeout(() => {
+        if (this.removeDefaultMenuTimer) {
+            clearTimeout(this.removeDefaultMenuTimer);
+        }
+        this.removeDefaultMenuTimer = setTimeout(() => {
+            this.removeDefaultMenuTimer = null;
+            if (this.editorDisposed) {
+                return;
+            }
             // 移除多余右键菜单
             this.editor.createContextKey("editorHasDocumentFormattingProvider", false);
             // this.editor.createContextKey("editorHasDocumentSymbolProvider", false);
