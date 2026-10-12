@@ -1,7 +1,7 @@
 // 代码行信息扩展
 // json  Array/Object[Length]
 
-import * as monaco from "monaco-editor";
+import type * as monaco from "monaco-editor";
 import { trimEnd, isArray, isPlainObject, debounce } from "lodash";
 import Json from "@/helper/json";
 

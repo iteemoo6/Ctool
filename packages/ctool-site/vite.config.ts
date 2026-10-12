@@ -32,13 +32,37 @@ export default defineConfig({
             registerType: "prompt",
             manifest: false,
             workbox: {
+                navigateFallback: "tool.html",
                 navigateFallbackDenylist: [
                     /^\/api/,
                     /^\/privacy/,
                 ],
-                globPatterns: ["**\/*.{js,css,html,png,jpg,ico,svg,json}"],
+                globPatterns: [
+                    "index.html",
+                    "tool.html",
+                    "favicon.ico",
+                    "manifest.webmanifest.json",
+                    "_assets/*.{js,css}",
+                    "assets/tool-*.{js,css}",
+                    "icon/*.{png,svg}",
+                ],
+                runtimeCaching: [
+                    {
+                        urlPattern: /\/(?:assets|_assets)\//,
+                        handler: "CacheFirst",
+                        options: {
+                            cacheName: "ctool-runtime-assets",
+                            cacheableResponse: {
+                                statuses: [0, 200],
+                            },
+                            expiration: {
+                                maxEntries: 300,
+                                maxAgeSeconds: 60 * 60 * 24 * 30,
+                            },
+                        },
+                    },
+                ],
                 cleanupOutdatedCaches: true,
-                maximumFileSizeToCacheInBytes: 10485760,
             },
         }),
     ],

@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor";
+import type * as monaco from "monaco-editor";
 import formatter from "@/tools/code/formatter";
 
 // 自定义右键菜单

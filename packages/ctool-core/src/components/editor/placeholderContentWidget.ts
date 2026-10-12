@@ -1,11 +1,11 @@
-import { monacoEditor } from "./monaco";
+import type { editor } from "monaco-editor/esm/vs/editor/editor.api";
 
-class PlaceholderContentWidget implements monacoEditor.editor.IContentWidget {
+class PlaceholderContentWidget implements editor.IContentWidget {
     private static readonly ID = "editor.widget.placeholderHint";
 
     private domNode: HTMLElement | undefined;
 
-    constructor(private readonly placeholder: string, private readonly editor: monacoEditor.editor.ICodeEditor) {
+    constructor(private readonly placeholder: string, private readonly editor: editor.ICodeEditor) {
         // register a listener for editor code changes
         editor.onDidChangeModelContent(() => this.onDidChangeModelContent());
         // ensure that on initial load the placeholder is shown
@@ -37,10 +37,10 @@ class PlaceholderContentWidget implements monacoEditor.editor.IContentWidget {
         return this.domNode;
     }
 
-    getPosition(): monacoEditor.editor.IContentWidgetPosition | null {
+    getPosition(): editor.IContentWidgetPosition | null {
         return {
             position: { lineNumber: 1, column: 1 },
-            preference: [monacoEditor.editor.ContentWidgetPositionPreference.EXACT],
+            preference: [0 as editor.ContentWidgetPositionPreference],
         };
     }
 

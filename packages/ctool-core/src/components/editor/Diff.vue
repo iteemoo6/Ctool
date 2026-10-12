@@ -35,7 +35,8 @@
 </template>
 <script lang="ts" setup>
 // 代码编辑器
-import { monacoInit, ContextMenu, monacoInstance, monacoEditor } from "./monaco";
+import { monacoInit, ContextMenu, monacoInstance } from "./monaco";
+import type { editor } from "monaco-editor/esm/vs/editor/editor.api";
 import PlaceholderContentWidget from "./placeholderContentWidget";
 import { onUnmounted, onMounted, watch, PropType, ref, shallowRef } from "vue";
 import { getEditorLanguage } from "@/helper/code";
@@ -84,7 +85,7 @@ const props = defineProps({
 
 const storeTheme = useTheme();
 const container = ref<HTMLElement | null>(null);
-const editorView = shallowRef<monacoEditor.editor.IDiffEditor | null>(null);
+const editorView = shallowRef<editor.IDiffEditor | null>(null);
 
 const lineWrapping = ref(!props.disableLineWrapping);
 const lineNumbers = ref(!props.disableLineNumbers);
