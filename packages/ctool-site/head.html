@@ -11,6 +11,12 @@
 <link rel="apple-touch-icon" href="./icon/icon_512.png" sizes="512x512">
 <link rel="manifest" href="/manifest.webmanifest.json">
 <script>
+    // Keep the canonical web entry at /tool.html even if an old service worker
+    // serves its navigation fallback for "/" before the new worker activates.
+    if (window.location.pathname === "/") {
+        window.location.replace("/tool.html");
+    }
+
     // service worker
     // https://whatwebcando.today/articles/handling-service-worker-updates/
     if ('serviceWorker' in navigator) {

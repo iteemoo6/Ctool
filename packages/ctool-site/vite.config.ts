@@ -32,6 +32,8 @@ export default defineConfig({
             registerType: "prompt",
             manifest: false,
             workbox: {
+                skipWaiting: true,
+                clientsClaim: true,
                 navigateFallback: "tool.html",
                 navigateFallbackDenylist: [
                     /^\/$/,
