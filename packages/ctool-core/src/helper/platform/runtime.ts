@@ -1,25 +1,64 @@
 import { PlatformRuntime, Storage, Initializer } from "@/types";
 import { runtime as web } from "./platformRuntimeDefault";
-import { runtime as edge } from "ctool-adapter-edge";
-import { runtime as chrome } from "ctool-adapter-chrome";
-import { runtime as firefox } from "ctool-adapter-firefox";
-import { runtime as utools } from "ctool-adapter-utools";
-import { runtime as tauri } from "ctool-adapter-tauri";
 import { Router } from "vue-router";
-// 适配平台
-const platforms = [edge, chrome, firefox, utools, tauri];
+
+type AdapterName = "edge" | "chrome" | "firefox" | "utools" | "tauri";
+
+const detectAdapter = (): AdapterName | null => {
+    const userAgent = navigator.userAgent;
+    const globalWindow = window as any;
+    const chromeApi = globalWindow.chrome;
+    const browserApi = globalWindow.browser;
+
+    if (userAgent.includes("Edg") && !!chromeApi?.tabs) {
+        return "edge";
+    }
+    if (!userAgent.includes("Edg") && userAgent.includes("Chrome") && !!chromeApi?.tabs) {
+        return "chrome";
+    }
+    if (userAgent.includes("Firefox") && !!browserApi?.tabs) {
+        return "firefox";
+    }
+    if (userAgent.includes("uTools")) {
+        return "utools";
+    }
+    if (!!globalWindow.__TAURI__) {
+        return "tauri";
+    }
+    return null;
+}
+
+const loadRuntime = async (): Promise<PlatformRuntime> => {
+    switch (detectAdapter()) {
+        case "edge":
+            return (await import("ctool-adapter-edge")).runtime;
+        case "chrome":
+            return (await import("ctool-adapter-chrome")).runtime;
+        case "firefox":
+            return (await import("ctool-adapter-firefox")).runtime;
+        case "utools":
+            return (await import("ctool-adapter-utools")).runtime;
+        case "tauri":
+            return (await import("ctool-adapter-tauri")).runtime;
+        default:
+            return web;
+    }
+}
 
 export default class {
-    private readonly platformRuntime: PlatformRuntime;
+    private platformRuntime: PlatformRuntime = web;
+    private readonly loadPromise: Promise<void>;
 
     constructor() {
-        for (let platform of platforms) {
-            if (platform.is()) {
-                this.platformRuntime = platform;
-                return;
-            }
-        }
-        this.platformRuntime = web;
+        this.loadPromise = this.load();
+    }
+
+    ready(): Promise<void> {
+        return this.loadPromise;
+    }
+
+    private async load(): Promise<void> {
+        this.platformRuntime = await loadRuntime();
     }
 
     name() {

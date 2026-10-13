@@ -26,10 +26,10 @@
             }))
         }
         window.addEventListener('load', () => {
-            const script = document.querySelector('script[type="module"][src*="/assets/tool-"]')
-            const version = script ? script.getAttribute('src').split('/').pop() : ''
-            const swUrl = version ? `/sw.js?v=${encodeURIComponent(version)}` : '/sw.js'
-            navigator.serviceWorker.register(swUrl, {scope: '/'}).then((registration) => {
+            navigator.serviceWorker.register('/sw.js', {
+                scope: '/',
+                updateViaCache: 'none'
+            }).then((registration) => {
                 if (registration.waiting) {
                     invokeServiceWorkerUpdateFlow(registration)
                 }

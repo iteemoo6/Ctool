@@ -12,14 +12,10 @@ import Tooltip from "./ui/Tooltip.vue";
 import Radio from "./ui/Radio.vue";
 import TextInput from "./text/TextInput.vue";
 import TextOutput from "./text/TextOutput.vue";
-import SerializeInput from "./serialize/SerializeInput.vue";
-import SerializeOutput from "./serialize/SerializeOutput.vue";
-import Editor from "./editor/Editor.vue";
+import {App, defineAsyncComponent} from "vue";
 import ExtendPage from "./ExtendPage.vue";
 import Card from "./ui/Card.vue";
-import Color from "./ui/Color.vue";
 import InputNumber from "./ui/InputNumber.vue";
-import Table from "./ui/Table.vue";
 import Exception from "./Exception.vue";
 import Modal from "./Modal.vue";
 import Link from "./ui/Link.vue";
@@ -27,7 +23,12 @@ import Tabs from "./ui/Tabs.vue";
 import HelpTip from "./HelpTip.vue";
 import Align from "./Align.vue";
 import Checkbox from "./ui/Checkbox.vue";
-import {App} from "vue";
+
+const SerializeInput = defineAsyncComponent(() => import("./serialize/SerializeInput.vue"));
+const SerializeOutput = defineAsyncComponent(() => import("./serialize/SerializeOutput.vue"));
+const Editor = defineAsyncComponent(() => import("./editor/Editor.vue"));
+const Color = defineAsyncComponent(() => import("./ui/Color.vue"));
+const Table = defineAsyncComponent(() => import("./ui/Table.vue"));
 
 const components = {
     // icon

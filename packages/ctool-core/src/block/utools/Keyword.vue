@@ -21,8 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import {runtime} from 'ctool-adapter-utools'
 import {FeatureInterface} from '@/config'
+import platform from "@/helper/platform";
 import Message from "@/helper/message";
 
 type Item = {
@@ -33,7 +33,7 @@ type Item = {
 
 const getFeatures = () => {
     let lists: Record<string, Item> = {}
-    runtime.getFeatures().forEach((value, feature) => {
+    platform.runtime.call<Map<FeatureInterface, string[]>>("getFeatures").forEach((value, feature) => {
         lists[`${feature.getKey()}`] = {
             feature,
             title: feature.tool.isSimple() ? $t(`tool_${feature.tool.name}`) : `${$t(`tool_${feature.tool.name}`)} - ${$t(`tool_${feature.tool.name}_${feature.name}`)}`,
@@ -58,20 +58,19 @@ const save = () => {
             })
         }
     })
-    runtime.setFeatures(features)
+    platform.runtime.call("setFeatures", features)
     items = getFeatures()
     Message.success($t('main_ui_success'))
 }
 const reset = () => {
-    runtime.resetFeatures()
+    platform.runtime.call("resetFeatures")
     items = getFeatures()
     Message.success($t('main_ui_success'))
 }
 
 const clear = () => {
-    runtime.setFeatures([])
+    platform.runtime.call("setFeatures", [])
     items = getFeatures()
     Message.success($t('main_ui_success'))
 }
 </script>
-

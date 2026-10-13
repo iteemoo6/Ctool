@@ -34,15 +34,14 @@ export default defineConfig({
             workbox: {
                 navigateFallback: "tool.html",
                 navigateFallbackDenylist: [
+                    /^\/$/,
                     /^\/api/,
                     /^\/privacy/,
                 ],
                 globPatterns: [
-                    "index.html",
                     "tool.html",
                     "favicon.ico",
                     "manifest.webmanifest.json",
-                    "_assets/*.{js,css}",
                     "assets/tool-*.{js,css}",
                     "icon/*.{png,svg}",
                 ],

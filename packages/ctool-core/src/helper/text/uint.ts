@@ -1,8 +1,48 @@
 // 文本编码类型
-import chardet from "chardet";
 import {Buffer} from "buffer";
+import chardet from "chardet";
 import {Encoding} from "@/helper/text/index";
-import {TextEncoder as CustomTextEncoder} from 'text-decoding'
+
+let gbkEncodeMap: Map<string, Uint8Array> | null = null;
+
+const getGbkEncodeMap = (): Map<string, Uint8Array> => {
+    if (gbkEncodeMap === null) {
+        const decoder = new TextDecoder("gbk");
+        const map = new Map<string, Uint8Array>();
+        for (let lead = 0x81; lead <= 0xfe; lead++) {
+            for (let trail = 0x40; trail <= 0xfe; trail++) {
+                if (trail === 0x7f) {
+                    continue;
+                }
+                const bytes = new Uint8Array([lead, trail]);
+                const value = decoder.decode(bytes);
+                if (value.length === 1 && value !== "\uFFFD" && !map.has(value)) {
+                    map.set(value, bytes);
+                }
+            }
+        }
+        gbkEncodeMap = map;
+    }
+    return gbkEncodeMap;
+}
+
+const encodeGbk = (value: string): Uint8Array => {
+    const bytes: number[] = [];
+    for (let index = 0; index < value.length; index++) {
+        const char = value[index];
+        const code = char.charCodeAt(0);
+        if (code <= 0x7f) {
+            bytes.push(code);
+            continue;
+        }
+        const encoded = getGbkEncodeMap().get(char);
+        if (encoded === undefined) {
+            throw new Error(`GBK encoding unsupported character: ${char}`);
+        }
+        bytes.push(...encoded);
+    }
+    return Uint8Array.from(bytes);
+}
 
 export default class Uint {
     private readonly _uint8Array: Uint8Array
@@ -57,8 +97,8 @@ export default class Uint {
         if (encoding === this.encoding) {
             return this
         }
-        const encoder: TextEncoder = encoding === 'utf-8' ? new TextEncoder() : new CustomTextEncoder(encoding, {NONSTANDARD_allowLegacyEncoding: true})
-        return new Uint(encoder.encode(this.toString()), encoding)
+        const bytes = encoding === 'utf-8' ? new TextEncoder().encode(this.toString()) : encodeGbk(this.toString())
+        return new Uint(bytes, encoding)
     }
 
     localUint8Array() {

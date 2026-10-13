@@ -36,14 +36,8 @@ const decode = <T>(data: StorageDataStructure<T>): StorageDataStructure<T> => {
 }
 
 class StorageObject {
-    private readonly _handle: StorageInterface;
-
-    constructor(handle: StorageInterface) {
-        this._handle = handle;
-    }
-
     get handle(): StorageInterface {
-        return this._handle;
+        return platform.runtime.storage;
     }
 
     get<T>(key: string, def: T | null = null, isVersion: boolean | null = null): T | null {
@@ -51,15 +45,15 @@ class StorageObject {
         // 自动判断有无版本号
         if (isVersion === null) {
             // 默认获取有版本号数据
-            data = decode<T>(this._handle.get<T>(addKeyVersion(key)))
+            data = decode<T>(this.handle.get<T>(addKeyVersion(key)))
             if (data === null) {
                 // 获取无版本数据
-                data = decode<T>(this._handle.get<T>(addKeyVersion(key, false)))
+                data = decode<T>(this.handle.get<T>(addKeyVersion(key, false)))
             }
         }
         // 强制指定有无版本号
         else {
-            data = decode<T>(this._handle.get<T>(addKeyVersion(key, isVersion)))
+            data = decode<T>(this.handle.get<T>(addKeyVersion(key, isVersion)))
         }
 
         // 不存在/过期
@@ -75,7 +69,7 @@ class StorageObject {
 
     // 默认有版本号
     set<T>(key: string, value: T, expiry: number = 0, isVersion: boolean = true): void {
-        this._handle.set<T>(addKeyVersion(key, isVersion), encode<T>(value, expiry))
+        this.handle.set<T>(addKeyVersion(key, isVersion), encode<T>(value, expiry))
     }
 
     // 不使用版本号
@@ -84,13 +78,13 @@ class StorageObject {
     }
 
     remove(key: string): void {
-        this._handle.remove(addKeyVersion(key))
-        this._handle.remove(addKeyVersion(key, false))
+        this.handle.remove(addKeyVersion(key))
+        this.handle.remove(addKeyVersion(key, false))
     }
 
     // 删除 不添加版本前缀
     delete(key: string) {
-        this._handle.remove(key)
+        this.handle.remove(key)
     }
 
     // 移除过期数据
@@ -102,15 +96,15 @@ class StorageObject {
     }
 
     getAllKey(): string[] {
-        return this._handle.getAllKey();
+        return this.handle.getAllKey();
     }
 
     clear() {
-        this._handle.clear()
+        this.handle.clear()
     }
 }
 
-const storage = new StorageObject(platform.runtime.storage)
+const storage = new StorageObject()
 
 const clearExpireVersion = () => {
     const cacheVersionName = "cache_version";
@@ -129,12 +123,14 @@ const clearExpireVersion = () => {
     }
 }
 // 清理过期数据
-setTimeout(() => {
-    // 清理过期数据
-    storage.flushExpired();
-    // 清理过期版本数据
-    clearExpireVersion();
-}, 100);
+platform.runtime.ready().then(() => {
+    setTimeout(() => {
+        // 清理过期数据
+        storage.flushExpired();
+        // 清理过期版本数据
+        clearExpireVersion();
+    }, 100);
+});
 
 
 export default storage

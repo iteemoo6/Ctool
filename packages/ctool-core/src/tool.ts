@@ -8,6 +8,7 @@ import Tool from "@/Tool.vue";
 import { initPermission as initClipboardPermission } from "@/helper/clipboard";
 
 (async () => {
+    await platform.runtime.ready();
     await initClipboardPermission();
     if (document.body.clientWidth > 850 || platform.isUtools() || platform.isWeb() || platform.isDesktop()) {
         const page = document.getElementById("ctool");
