@@ -19,13 +19,13 @@
 
 <script setup lang="ts">
 import {useRouter} from 'vue-router'
-import {onMounted} from 'vue'
+import {defineAsyncComponent, onMounted} from 'vue'
 import {report} from '@/helper/stat'
 import {RouteMeta} from '@/types'
 import {categoryExists, getTool} from '@/config'
 import useOperate from '@/store/operate'
 import event from "@/event";
-import Setting from "@/block/Setting.vue"
+const Setting = defineAsyncComponent(() => import("@/block/Setting.vue"));
 
 const operate = useOperate()
 const router = useRouter()

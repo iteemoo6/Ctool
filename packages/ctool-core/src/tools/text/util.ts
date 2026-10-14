@@ -1,10 +1,5 @@
-import { toSimplified, toTraditional } from "chinese-simple2traditional";
 import { orderBy, uniq } from "lodash";
-import { Buffer } from "buffer";
 import { TypeLists as RenameType, convent as nameConvent } from "@/helper/nameConvert";
-import { setupEnhance } from "chinese-simple2traditional/enhance";
-
-setupEnhance();
 
 const regExpQuote = function(str: string) {
     return str.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
@@ -121,7 +116,12 @@ export default class {
     }
 
     // 简繁转换
-    zhTran({ type = "simplified" }: Record<string, any> = {}) {
+    async zhTran({ type = "simplified" }: Record<string, any> = {}) {
+        const [{ toSimplified, toTraditional }, { setupEnhance }] = await Promise.all([
+            import("chinese-simple2traditional"),
+            import("chinese-simple2traditional/enhance"),
+        ]);
+        setupEnhance();
         if (type === "simplified") {
             return toTraditional(this.text);
         }
@@ -262,7 +262,7 @@ export default class {
 
         return {
             // 字节数(utf8)
-            byte_utf8_length: Buffer.byteLength(this.text, "utf8"),
+            byte_utf8_length: new TextEncoder().encode(this.text).length,
             // 字节数(gbk)
             byte_gbk_length: getGbkStrLength(this.text),
             // 字符数

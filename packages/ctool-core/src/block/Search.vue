@@ -36,6 +36,11 @@ import {watch} from "vue";
 
 const setting = useSetting()
 const operate = useOperate()
+
+const searchableToolKeywords = toolKeywords.map(item => ({
+    ...item,
+    search: item.search.map(keyword => keyword.toLowerCase()),
+}))
 let container = $ref<HTMLElement | null>(null);
 let input = $ref("")
 let inputElement = $ref<HTMLInputElement | null>(null);
@@ -44,7 +49,8 @@ let selectIndex = $ref(0)
 
 const items = $computed(() => {
     let lists: FeatureInterface[]
-    if (input === "") {
+    const keyword = input.trim().toLowerCase()
+    if (keyword === "") {
         lists = [
             ...(new Set(
                     [
@@ -57,9 +63,15 @@ const items = $computed(() => {
             )
         ]
     } else {
-        lists = toolKeywords.filter((item) => item.search.join(",").includes(input.toLowerCase())).map(item => {
-            return getTool(item.name).getFeature(item.feature)
-        })
+        lists = []
+        for (const item of searchableToolKeywords) {
+            if (lists.length >= 15) {
+                break
+            }
+            if (item.search.some(keywordText => keywordText.includes(keyword))) {
+                lists.push(getTool(item.name).getFeature(item.feature))
+            }
+        }
     }
     if (lists.length === 0) {
         return [{label: $t(`main_ui_null`), tool: "", feature: ""}]

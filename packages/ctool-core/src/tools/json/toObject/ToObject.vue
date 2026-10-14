@@ -29,6 +29,7 @@ import {PropType, watch} from "vue"
 import Serialize from "@/helper/serialize"
 import {getDisplayName} from "@/helper/code";
 import {transform, Option} from "./index";
+import {Option as TargetOption} from "./type";
 
 const props = defineProps({
     modelValue: {
@@ -54,16 +55,17 @@ let output = $ref("")
 const lang = $computed(() => {
     return current.lang
 })
-const optionDefine = $computed(() => {
-    return current.define()
-})
+let optionDefine = $ref<TargetOption[]>([])
+watch(() => current.lang, async () => {
+    optionDefine = await current.define()
+}, {immediate: true})
 watch(() => {
     return {
         lang: current.lang,
         json: props.json,
         options: current.option
     }
-}, async ({lang, json, options}) => {
+}, async ({lang, json}) => {
     if (json.isError()) {
         output = json.error();
         return;
@@ -72,12 +74,10 @@ watch(() => {
         output = "";
         return;
     }
-    output = await transform(lang, json.toJson(), options[lang])
+    await current.define()
+    output = await transform(lang, json.toJson(), current.option[lang])
     emit('success')
 }, {immediate: true, deep: true})
 
 </script>
-
-
-
 

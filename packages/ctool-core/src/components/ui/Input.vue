@@ -133,10 +133,14 @@ const inputStyle = $computed(() => {
     return css;
 });
 
+const clearContent = () => {
+    content = "";
+};
+
 onMounted(() => {
     updatePadding();
     event.addListener("component_resize", updatePadding);
-    !props.disableClear && event.addListener("content_clear", () => (content = ""));
+    !props.disableClear && event.addListener("content_clear", clearContent);
     if (container) {
         emit("load", container as HTMLInputElement);
     }
@@ -146,6 +150,7 @@ onUpdated(() => {
 });
 onUnmounted(() => {
     event.removeListener("component_resize", updatePadding);
+    !props.disableClear && event.removeListener("content_clear", clearContent);
 });
 const updatePadding = () => {
     if (!inputLeft || !inputRight) {

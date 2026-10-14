@@ -55,12 +55,13 @@ import useOperate from "@/store/operate";
 import useSetting from "@/store/setting";
 import {getTool, toolExists, FeatureInterface, categories, getCategory, categoryExists} from "@/config";
 import Search from "../../Search.vue";
-import Tools from "../../Tools.vue";
 import {nextTick, watch} from "vue";
+import {defineAsyncComponent} from "vue";
 import Github from "../../Github.vue";
 
 const storeOperate = useOperate()
 const storeSetting = useSetting()
+const Tools = defineAsyncComponent(() => import("../../Tools.vue"));
 
 let openTools = $ref(false);
 let selectedCategory = $ref(storeOperate.items.category || "common")

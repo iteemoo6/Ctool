@@ -28,13 +28,15 @@
 <script setup lang="ts">
 import useOperate from "@/store/operate";
 import useSetting from "@/store/setting";
-import History from "../../History.vue"
+import {defineAsyncComponent} from "vue";
 import platform from "@/helper/platform"
 import Notice from "../../Notice.vue"
 import {openUrl} from "@/helper/helper"
 import getHistoryInstance from "@/helper/history";
 import {onMounted, onUnmounted} from "vue";
 import event from "@/event";
+
+const History = defineAsyncComponent(() => import("../../History.vue"));
 
 const storeOperate = useOperate()
 const storeSetting = useSetting()

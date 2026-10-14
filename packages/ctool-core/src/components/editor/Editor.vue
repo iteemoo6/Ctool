@@ -163,13 +163,15 @@ const create = async (element: HTMLElement) => {
 };
 
 onMounted(async () => {
-    !props.disableClear && event.addListener("content_clear", () => updateEditor());
+    !props.disableClear && event.addListener("content_clear", clearContent);
     await create(<HTMLElement>container.value);
 });
 
 onUnmounted(() => {
     disposed = true;
     editorView.value?.dispose();
+    editorView.value = null;
+    !props.disableClear && event.removeListener("content_clear", clearContent);
 });
 
 const updateEditor = (text = "") => {
@@ -180,6 +182,8 @@ const updateEditor = (text = "") => {
         editorView.value.setValue(text);
     }
 };
+
+const clearContent = () => updateEditor();
 
 // 回写内容
 watch(

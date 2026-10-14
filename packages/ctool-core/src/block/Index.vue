@@ -6,8 +6,18 @@ import {onMounted} from "vue";
 
 const operate = useOperate()
 
-// 获取跳转参数 优先级: 最近使用 / 分类最近 / 分类第一个 / 常用第一个 / 工具第一个
+// 获取跳转参数 优先级: 常用第一个 / 最近使用 / 分类最近 / 分类第一个 / 工具第一个
 const init = () => {
+    // 常用第一个
+    const commonTool = useSetting().items.common.find(item => toolExists(item))
+    if (commonTool) {
+        return {
+            tool: commonTool,
+            category: "",
+            feature: operate.getToolLastFeature(commonTool)
+        }
+    }
+
     let redirect = {
         tool: operate.items.tool || "",
         category: operate.items.category || "",
@@ -28,12 +38,6 @@ const init = () => {
         if (toolExists(redirect.tool)) {
             return redirect
         }
-    }
-
-    // 常用第一个
-    redirect.tool = useSetting().items.common.filter(item => toolExists(item))[0] || ""
-    if (toolExists(redirect.tool)) {
-        return redirect
     }
 
     redirect.tool = tools[0].name

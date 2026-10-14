@@ -17,7 +17,7 @@
                 </Button>
             </Align>
         </Card>
-        <Card :title="$t(`main_category_${cate.name}`)" v-for="cate in categories">
+        <Card class="ctool-tools-category" :title="$t(`main_category_${cate.name}`)" v-for="cate in categories">
             <Align>
                 <template v-for="tool in cate.tools">
                     <Button type="dotted" :size="size" @click="selectTool(tool.name,cate,item.name)" v-for="item in tool.features">
@@ -52,3 +52,9 @@ const recently: FeatureInterface[] = $computed(() => {
     return operate.getRecently().slice(0, 10)
 })
 </script>
+<style>
+.ctool-tools-category {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 120px;
+}
+</style>

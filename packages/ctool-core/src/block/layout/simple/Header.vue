@@ -49,11 +49,12 @@ import Search from "../../Search.vue";
 import Github from "../../Github.vue";
 import getHistoryInstance from "@/helper/history";
 import {onMounted, onUnmounted} from "vue";
+import {defineAsyncComponent} from "vue";
 import event from "@/event";
-import History from "../../History.vue"
+const History = defineAsyncComponent(() => import("../../History.vue"));
 import platform from "@/helper/platform"
 import Notice from "../../Notice.vue"
-import Tools from "../../Tools.vue";
+const Tools = defineAsyncComponent(() => import("../../Tools.vue"));
 
 const storeOperate = useOperate()
 const storeSetting = useSetting()

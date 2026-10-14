@@ -151,22 +151,22 @@
 </template>
 
 <script lang="ts" setup>
-import { StyleValue, watch } from "vue";
+import { StyleValue, watch, defineAsyncComponent } from "vue";
 import Json from "@/helper/json";
 import { useAction, initialize } from "@/store/action";
 import { tabOptions, actionType, TabsType, pathLists } from "./define";
 import { createSerializeInput, createSerializeOutput } from "@/components/serialize";
-import Schema from "./Schema.vue";
 import { serializeInputEncoderLists, serializeOutputEncoderLists } from "@/types";
-import Path from "./Path.vue";
 import Serialize from "@/helper/serialize";
 import { typeLists as renameTypeLists, TypeLists as RenameType } from "@/helper/nameConvert";
 import util from "./util";
 import { getDisplayName } from "@/helper/code";
-import { jsonrepair } from "jsonrepair";
 import { ComponentSizeType } from "@/types";
-import ToObject from "./toObject/ToObject.vue";
 import { languages as toObjectLangLists, getOption as getToObjectOption } from "./toObject";
+
+const Schema = defineAsyncComponent(() => import("./Schema.vue"));
+const Path = defineAsyncComponent(() => import("./Path.vue"));
+const ToObject = defineAsyncComponent(() => import("./toObject/ToObject.vue"));
 
 const action = useAction(
     await initialize<actionType>(
@@ -280,7 +280,9 @@ const general = {
     repair() {
         const code = this.getInput();
         if (code !== "") {
-            this.beautify(jsonrepair(code));
+            import("jsonrepair").then(({ jsonrepair }) => {
+                this.beautify(jsonrepair(code));
+            });
         }
     },
 };

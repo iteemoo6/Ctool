@@ -192,13 +192,15 @@ const location = (type: "prev" | "next") => {
 };
 
 onMounted(async () => {
-    !props.disableClear && event.addListener("content_clear", () => updateEditor());
+    !props.disableClear && event.addListener("content_clear", clearContent);
     await create(<HTMLElement>container.value);
 });
 
 onUnmounted(() => {
     disposed = true;
     editorView.value?.dispose();
+    editorView.value = null;
+    !props.disableClear && event.removeListener("content_clear", clearContent);
 });
 
 const updateEditor = (original = "", modified = "") => {
@@ -212,6 +214,8 @@ const updateEditor = (original = "", modified = "") => {
         editorView.value.getModifiedEditor().setValue(modified);
     }
 };
+
+const clearContent = () => updateEditor();
 
 // 回写内容
 watch(

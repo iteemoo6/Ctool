@@ -19,8 +19,10 @@
 
 <script setup lang="ts">
 import useSetting from "@/store/setting";
-import Tools from "../../Tools.vue";
+import {defineAsyncComponent} from "vue";
 import {getTool} from "@/config";
+
+const Tools = defineAsyncComponent(() => import("../../Tools.vue"));
 import useOperate from "@/store/operate";
 
 const storeSetting = useSetting()

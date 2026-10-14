@@ -178,6 +178,8 @@ import TextHandle, { escapeChars, EscapeCharsType } from "./util";
 import { getCommonExpression } from "../regex/util";
 import { ComponentSizeType, CheckboxOption } from "@/types";
 import { typeLists as renameTypeLists } from "@/helper/nameConvert";
+import { debounce } from "lodash";
+import { watch } from "vue";
 
 const action = useAction(await initialize({
     input: "",
@@ -207,16 +209,28 @@ const replace = () => {
     replaceShow = false;
 };
 
-const handle = (method: string, option: Record<string, any> = {}) => {
+const handle = async (method: string, option: Record<string, any> = {}) => {
     if (action.current.input.length < 1) {
         return;
     }
-    action.current.input = (new TextHandle(action.current.input))[method as keyof TextHandle](option) as string;
+    const result = await (new TextHandle(action.current.input))[method as keyof TextHandle](option);
+    action.current.input = result as string;
     action.success();
 };
 
-const stat = $computed(() => {
-    return (new TextHandle(action.current.input)).stat();
+const emptyStat = new TextHandle("").stat();
+let stat = $ref({ ...emptyStat });
+const updateStat = () => {
+    stat = (new TextHandle(action.current.input)).stat();
+}
+const updateStatDebounced = debounce(updateStat, 300);
+watch(() => action.current.input, () => {
+    statMore ? updateStat() : updateStatDebounced();
+}, { immediate: true });
+watch(() => statMore, value => {
+    if (value) {
+        updateStatDebounced.flush();
+    }
 });
 
 const escapeOptions = $computed<CheckboxOption>(() => {
