@@ -35,6 +35,9 @@ let is = $ref(false)
 
 onMounted(() => {
     window.dispatchEvent(new Event('resize'));
+    if (router.currentRoute.value.matched.length > 0) {
+        is = true
+    }
     // pwa 更新检测事件
     window.addEventListener('ctool_service_worker_update', (event: any) => {
         pwaUpdate = true
