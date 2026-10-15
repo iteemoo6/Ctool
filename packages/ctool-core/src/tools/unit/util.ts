@@ -1,7 +1,28 @@
-import { create, all } from "mathjs";
-const math = create(all, {
-    number: "BigNumber",
-});
+import {
+    create,
+    evaluateDependencies,
+    addDependencies,
+    subtractDependencies,
+    multiplyDependencies,
+    divideDependencies,
+    powDependencies,
+    logDependencies,
+} from "mathjs";
+
+const math = create(
+    {
+        ...evaluateDependencies,
+        ...addDependencies,
+        ...subtractDependencies,
+        ...multiplyDependencies,
+        ...divideDependencies,
+        ...powDependencies,
+        ...logDependencies,
+    },
+    {
+        number: "BigNumber",
+    }
+);
 
 const MAX_NUM = 14;       //格式化后的最长限制
 const DECIMAL_NUM = 7;    //四舍五入时小数点后位数
