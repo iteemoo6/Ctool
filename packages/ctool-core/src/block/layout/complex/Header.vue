@@ -55,7 +55,7 @@ import useOperate from "@/store/operate";
 import useSetting from "@/store/setting";
 import {getTool, toolExists, FeatureInterface, categories, getCategory, categoryExists} from "@/config";
 import Search from "../../Search.vue";
-import {nextTick, watch} from "vue";
+import {watch} from "vue";
 import {defineAsyncComponent} from "vue";
 import Github from "../../Github.vue";
 
@@ -113,15 +113,6 @@ watch(() => {
     }
 })
 
-watch(() => {
-    return {
-        selectedCategory,
-        tool: storeOperate.items.tool,
-    }
-}, async () => {
-    await nextTick()
-    window.dispatchEvent(new Event('resize'));
-}, {immediate: true})
 </script>
 
 <style scoped>

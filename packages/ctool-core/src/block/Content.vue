@@ -1,7 +1,7 @@
 <template>
     <div class="ctool-content">
         <div class="ctool-main-tool">
-            <router-view v-if="is"/>
+            <router-view/>
         </div>
     </div>
     <ExtendPage v-model="openSetting">
@@ -33,13 +33,9 @@ const setting = useSetting()
 const router = useRouter()
 let pwaUpdate = $ref(false)
 let pwaUpdater = $ref<(() => void) | null>(null)
-let is = $ref(false)
 
 onMounted(() => {
     window.dispatchEvent(new Event('resize'));
-    if (router.currentRoute?.value?.matched.length > 0) {
-        is = true
-    }
     // pwa 更新检测事件
     window.addEventListener('ctool_service_worker_update', (event: any) => {
         pwaUpdate = true
@@ -55,7 +51,6 @@ event.addListener('open_setting', () => {
 })
 
 router.beforeResolve((to) => {
-    is = false
     const meta = to.meta as RouteMeta
     if (meta.type === "tool") {
         const queryCategory = to.query.category?.toString() || ""
@@ -64,17 +59,12 @@ router.beforeResolve((to) => {
             ? queryCategory
             : getTool(meta.tool).firstCategory().name
         if (!operate.access(meta.tool, meta.feature, category)) {
-            is = true
             return false
         }
         report({_t: meta.type, _c: category, _n: meta.tool, _f: meta.feature, _p: to.name || ""})
     } else {
         report({_t: meta.type, _p: to.name || ""})
     }
-})
-
-router.afterEach(() => {
-    is = true
 })
 
 </script>
