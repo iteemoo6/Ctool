@@ -36,6 +36,15 @@ const action = useAction(
     ),
 );
 
+if (
+    !action.current.option
+    || !allLanguage.includes(action.current.option.lang)
+) {
+    action.current.option = {
+        lang: "Text",
+    };
+}
+
 // 数据保存
 watch(
     () => action.current,

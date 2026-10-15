@@ -171,7 +171,7 @@ export const getDisplayName = (land: string) => {
 
 export const allLanguage = (() => {
     return [
-        ...supportedLanguages.map(item => (item.aliases ? item.aliases[0] : item.id)),
+        ...supportedLanguages.map(item => (item.aliases?.length ? item.aliases[0] : item.id)),
         ...customLanguages.map(item => item.name),
     ].sort();
 })();
