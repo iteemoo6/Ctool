@@ -13,7 +13,7 @@ const init = () => {
     if (commonTool) {
         return {
             tool: commonTool,
-            category: "",
+            category: "common",
             feature: operate.getToolLastFeature(commonTool)
         }
     }

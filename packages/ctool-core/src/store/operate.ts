@@ -4,6 +4,7 @@ import {reactive} from 'vue';
 import {getTool, ToolType, toolExists, categoryExists, tools, getCategory} from "@/config";
 import {useRouter} from "vue-router";
 import event from "@/event";
+import useSetting from "@/store/setting";
 
 interface Types {
     // 最后使用工具
@@ -34,11 +35,15 @@ export default defineStore(
     () => {
         const items = reactive<Types>(defaultValue)
         const router = useRouter()
+        const setting = useSetting()
 
         // 跳转
         const redirectTool = (_tool: string = "", _feature: string = "", _category: string = "", history: string | number = "", keyword: string = "") => {
             const tool = getTool(toolExists(_tool) ? _tool : tools[0].name)
-            const category = getCategory(tool.inCategory(_category) ? _category : tool.firstCategory().name)
+            const useCommonCategory = _category === "common" && setting.items.common.includes(tool.name)
+            const category = useCommonCategory
+                ? "common"
+                : getCategory(tool.inCategory(_category) ? _category : tool.firstCategory().name).name
             const feature = tool.getFeature(tool.existFeature(_feature) ? _feature : tool.firstFeature().name)
             const query: Record<string, any> = {}
             if (history !== "") {
@@ -51,18 +56,20 @@ export default defineStore(
             return router.push(
                 {
                     path: feature.getRouter(),
-                    query: feature.getQuery(category.name, query)
+                    query: useCommonCategory
+                        ? {category: "common", ...query}
+                        : feature.getQuery(category, query)
                 }
             )
         }
         // 访问
         const access = (_tool: string, _feature: string, _category: string): boolean => {
-            if (!toolExists(_tool) || !categoryExists(_category)) {
+            const useCommonCategory = _category === "common" && setting.items.common.includes(_tool as ToolType)
+            if (!toolExists(_tool) || (!useCommonCategory && !categoryExists(_category))) {
                 return false
             }
             const tool = getTool(_tool)
-            const category = getCategory(_category)
-            if (!tool.inCategory(category.name) || !tool.existFeature(_feature)) {
+            if ((!useCommonCategory && !tool.inCategory(_category)) || !tool.existFeature(_feature)) {
                 return false
             }
             const feature = tool.getFeature(_feature)
@@ -72,11 +79,13 @@ export default defineStore(
             // 最后访问功能
             items.feature = feature.name
             // 最后访问分类
-            items.category = category.name
+            items.category = useCommonCategory ? "common" : _category
             // 分类最后访问
-            items.category_last_tool = {
-                ...items.category_last_tool,
-                [category.name]: tool.name
+            if (!useCommonCategory) {
+                items.category_last_tool = {
+                    ...items.category_last_tool,
+                    [_category]: tool.name
+                }
             }
             // 工具最后使用功能
             items.tool_last_feature = {
@@ -141,4 +150,3 @@ export default defineStore(
     },
     true
 )
-

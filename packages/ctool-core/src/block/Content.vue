@@ -24,10 +24,12 @@ import {report} from '@/helper/stat'
 import {RouteMeta} from '@/types'
 import {categoryExists, getTool} from '@/config'
 import useOperate from '@/store/operate'
+import useSetting from '@/store/setting'
 import event from "@/event";
 const Setting = defineAsyncComponent(() => import("@/block/Setting.vue"));
 
 const operate = useOperate()
+const setting = useSetting()
 const router = useRouter()
 let pwaUpdate = $ref(false)
 let pwaUpdater = $ref<(() => void) | null>(null)
@@ -57,7 +59,10 @@ router.beforeResolve((to) => {
     const meta = to.meta as RouteMeta
     if (meta.type === "tool") {
         const queryCategory = to.query.category?.toString() || ""
-        const category = categoryExists(queryCategory) ? queryCategory : getTool(meta.tool).firstCategory().name
+        const useCommonCategory = queryCategory === "common" && setting.items.common.includes(meta.tool)
+        const category = useCommonCategory || categoryExists(queryCategory)
+            ? queryCategory
+            : getTool(meta.tool).firstCategory().name
         if (!operate.access(meta.tool, meta.feature, category)) {
             is = true
             return false

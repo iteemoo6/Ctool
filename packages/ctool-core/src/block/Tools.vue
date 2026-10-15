@@ -45,7 +45,11 @@ let openCommon = $ref(false)
 const size: ComponentSizeType = "default"
 
 const selectTool = (tool: ToolType, category?: CategoryInterface, feature?: FeatureType) => {
-    operate.redirectTool(tool, feature ? feature : operate.getToolLastFeature(tool), category ? category.name : "")
+    operate.redirectTool(
+        tool,
+        feature ? feature : operate.getToolLastFeature(tool),
+        category ? category.name : "common"
+    )
 }
 
 const recently: FeatureInterface[] = $computed(() => {

@@ -35,7 +35,7 @@ const tools = $computed(() => {
     })
 })
 
-const redirectTool = (tool: string) => storeOperate.redirectTool(tool)
+const redirectTool = (tool: string) => storeOperate.redirectTool(tool, storeOperate.getToolLastFeature(tool), "common")
 </script>
 
 <style scoped>
