@@ -90,6 +90,14 @@ const editorView = shallowRef<editor.IDiffEditor | null>(null);
 const lineWrapping = ref(!props.disableLineWrapping);
 const lineNumbers = ref(!props.disableLineNumbers);
 let disposed = false;
+let initUpdateTimer: ReturnType<typeof setInterval> | null = null;
+
+const stopInitUpdateTimer = () => {
+    if (initUpdateTimer !== null) {
+        clearInterval(initUpdateTimer);
+        initUpdateTimer = null;
+    }
+};
 
 const changes = ref<number>(0);
 const currentChange = ref<number>(1);
@@ -198,8 +206,10 @@ onMounted(async () => {
 
 onUnmounted(() => {
     disposed = true;
+    stopInitUpdateTimer();
     editorView.value?.dispose();
     editorView.value = null;
+    delete (window as any)._diffEditor;
     !props.disableClear && event.removeListener("content_clear", clearContent);
 });
 
@@ -231,11 +241,17 @@ watch(
         }
         
         // 防止初始内容变更 编辑器还没有初始化成功
-        const timer = setInterval(() => {
-            if (editorView.value) {
-                clearInterval(timer);
+        if (initUpdateTimer !== null) {
+            return;
+        }
+        initUpdateTimer = setInterval(() => {
+            if (!editorView.value && !disposed) {
+                return;
             }
-            updateEditor(value.original, value.modified);
+            stopInitUpdateTimer();
+            if (!disposed) {
+                updateEditor(original.value, modified.value);
+            }
         }, 50);
     },
 );

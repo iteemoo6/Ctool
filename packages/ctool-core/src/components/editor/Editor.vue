@@ -85,6 +85,14 @@ const editorView = shallowRef<editor.IStandaloneCodeEditor | null>(null);
 const lineWrapping = ref(!props.disableLineWrapping);
 const lineNumbers = ref(!props.disableLineNumbers);
 let disposed = false;
+let initUpdateTimer: ReturnType<typeof setInterval> | null = null;
+
+const stopInitUpdateTimer = () => {
+    if (initUpdateTimer !== null) {
+        clearInterval(initUpdateTimer);
+        initUpdateTimer = null;
+    }
+};
 
 const getLanguage = (selectLang: string) => {
     let name: string = selectLang;
@@ -169,6 +177,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
     disposed = true;
+    stopInitUpdateTimer();
     editorView.value?.dispose();
     editorView.value = null;
     !props.disableClear && event.removeListener("content_clear", clearContent);
@@ -198,11 +207,17 @@ watch(
         }
         
         // 防止初始内容变更 编辑器还没有初始化成功
-        const timer = setInterval(() => {
-            if (editorView.value) {
-                clearInterval(timer);
+        if (initUpdateTimer !== null) {
+            return;
+        }
+        initUpdateTimer = setInterval(() => {
+            if (!editorView.value && !disposed) {
+                return;
             }
-            updateEditor(value);
+            stopInitUpdateTimer();
+            if (!disposed) {
+                updateEditor(unref(modelValue.value));
+            }
         }, 50);
     },
 );

@@ -56,9 +56,18 @@ const lang = $computed(() => {
     return current.lang
 })
 let optionDefine = $ref<TargetOption[]>([])
+let optionDefineToken = 0
+let transformToken = 0
+
 watch(() => current.lang, async () => {
-    optionDefine = await current.define()
+    const token = ++optionDefineToken
+    const lang = current.lang
+    const define = await current.define()
+    if (token === optionDefineToken && current.lang === lang) {
+        optionDefine = define
+    }
 }, {immediate: true})
+
 watch(() => {
     return {
         lang: current.lang,
@@ -66,6 +75,7 @@ watch(() => {
         options: current.option
     }
 }, async ({lang, json}) => {
+    const token = ++transformToken
     if (json.isError()) {
         output = json.error();
         return;
@@ -75,9 +85,12 @@ watch(() => {
         return;
     }
     await current.define()
-    output = await transform(lang, json.toJson(), current.option[lang])
+    const result = await transform(lang, json.toJson(), current.option[lang])
+    if (token !== transformToken) {
+        return
+    }
+    output = result
     emit('success')
 }, {immediate: true, deep: true})
 
 </script>
-

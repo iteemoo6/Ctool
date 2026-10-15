@@ -179,7 +179,7 @@ import { getCommonExpression } from "../regex/util";
 import { ComponentSizeType, CheckboxOption } from "@/types";
 import { typeLists as renameTypeLists } from "@/helper/nameConvert";
 import { debounce } from "lodash";
-import { watch } from "vue";
+import { onUnmounted, watch } from "vue";
 
 const action = useAction(await initialize({
     input: "",
@@ -209,11 +209,17 @@ const replace = () => {
     replaceShow = false;
 };
 
+let handleToken = 0;
+
 const handle = async (method: string, option: Record<string, any> = {}) => {
     if (action.current.input.length < 1) {
         return;
     }
+    const token = ++handleToken;
     const result = await (new TextHandle(action.current.input))[method as keyof TextHandle](option);
+    if (token !== handleToken) {
+        return;
+    }
     action.current.input = result as string;
     action.success();
 };
@@ -231,6 +237,10 @@ watch(() => statMore, value => {
     if (value) {
         updateStatDebounced.flush();
     }
+});
+
+onUnmounted(() => {
+    updateStatDebounced.cancel();
 });
 
 const escapeOptions = $computed<CheckboxOption>(() => {
