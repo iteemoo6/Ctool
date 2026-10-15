@@ -37,7 +37,7 @@ let is = $ref(false)
 
 onMounted(() => {
     window.dispatchEvent(new Event('resize'));
-    if (router.currentRoute.value.matched.length > 0) {
+    if (router.currentRoute?.value?.matched.length > 0) {
         is = true
     }
     // pwa 更新检测事件
@@ -59,7 +59,7 @@ router.beforeResolve((to) => {
     const meta = to.meta as RouteMeta
     if (meta.type === "tool") {
         const queryCategory = to.query.category?.toString() || ""
-        const useCommonCategory = queryCategory === "common" && setting.items.common.includes(meta.tool)
+        const useCommonCategory = queryCategory === "common" && (setting.items?.common || []).includes(meta.tool)
         const category = useCommonCategory || categoryExists(queryCategory)
             ? queryCategory
             : getTool(meta.tool).firstCategory().name

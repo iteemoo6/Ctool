@@ -36,11 +36,12 @@ export default defineStore(
         const items = reactive<Types>(defaultValue)
         const router = useRouter()
         const setting = useSetting()
+        const commonTools = () => setting.items?.common || []
 
         // 跳转
         const redirectTool = (_tool: string = "", _feature: string = "", _category: string = "", history: string | number = "", keyword: string = "") => {
             const tool = getTool(toolExists(_tool) ? _tool : tools[0].name)
-            const useCommonCategory = _category === "common" && setting.items.common.includes(tool.name)
+            const useCommonCategory = _category === "common" && commonTools().includes(tool.name)
             const category = useCommonCategory
                 ? "common"
                 : getCategory(tool.inCategory(_category) ? _category : tool.firstCategory().name).name
@@ -53,18 +54,20 @@ export default defineStore(
                 query['keyword'] = keyword
             }
             event.dispatch('extend_page_close')
-            return router.push(
-                {
-                    path: feature.getRouter(),
-                    query: useCommonCategory
-                        ? {category: "common", ...query}
-                        : feature.getQuery(category, query)
-                }
-            )
+            const target = {
+                path: feature.getRouter(),
+                query: useCommonCategory
+                    ? {category: "common", ...query}
+                    : feature.getQuery(category, query)
+            }
+            if (router.currentRoute?.value?.fullPath === router.resolve(target).fullPath) {
+                return Promise.resolve()
+            }
+            return router.push(target)
         }
         // 访问
         const access = (_tool: string, _feature: string, _category: string): boolean => {
-            const useCommonCategory = _category === "common" && setting.items.common.includes(_tool as ToolType)
+            const useCommonCategory = _category === "common" && commonTools().includes(_tool as ToolType)
             if (!toolExists(_tool) || (!useCommonCategory && !categoryExists(_category))) {
                 return false
             }
